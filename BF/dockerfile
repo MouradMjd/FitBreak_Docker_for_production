@@ -1,0 +1,20 @@
+# Fase 1: Partiamo da un'immagine Python 3.10 ufficiale e leggera
+FROM python:3.10-slim
+
+# Fase 2: Impostiamo la directory di lavoro all'interno del container
+WORKDIR /app
+
+# Fase 3: Copiamo e installiamo le dipendenze (ottimizzato per il caching)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Fase 4: Copiamo l'intera applicazione (app.py, templates/, static/, etc.)
+# Il .dockerignore si assicurerà di non copiare i file inutili.
+COPY . .
+
+# Fase 5: Esponiamo la porta 5000, su cui il nostro server sarà in ascolto
+EXPOSE 5000
+
+# Fase 6: Definiamo il comando di avvio con Gunicorn
+#CMD ["gunicorn", "--bind", "0.0.0.0:5000","--reload", "app:app"]
+CMD ["flask", "run", "--host=0.0.0.0", "--port=5000", "--debug"]

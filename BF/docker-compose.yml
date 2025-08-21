@@ -1,0 +1,55 @@
+
+services:
+
+  web:
+    build:
+      context: .  # Il Dockerfile è in BF/
+    ports:
+      - "0.0.0.0:5000:5000"
+    volumes:
+      - .:/app    # Montiamo la cartella BF, per modifiche
+    environment:
+      # Passiamo le variabili al nostro main.py per connettersi al database i valori sono letti dal .env
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASS=${POSTGRES_PASSWORD}
+      - DB_HOST=db
+      - DB_NAME=${POSTGRES_DB}
+    #con questo dico al mio servizio di non avviarsi fino a quando non si avvia il database db e non viene popolato
+    depends_on:
+      db:
+        condition: service_healthy #service_healthy=pronto per ricevere conessioni
+      db_seeder:
+        condition: service_completed_successfully
+
+  db:
+    image: postgres:14-alpine
+    #collego il named volume postgres_data alla cartella /var/lib/postgresql/data all'interno del container
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    #usate da postgres al primo avvio
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  db_seeder:
+    build:
+      context: .  # Usa lo stesso ambiente dell'app definito dal Dockerfile(con tutte le librerie)
+    command: ["python", "seed.py"] # Esegue il nostro script sovrascrivnedo il comado sul dockerfile
+    #come app.py ha bisogno delle credenzili per conettersi al DB
+    environment:
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASS=${POSTGRES_PASSWORD}
+      - DB_HOST=db
+      - DB_NAME=${POSTGRES_DB}
+    depends_on:
+      db:
+        condition: service_healthy # Parte solo quando il DB è pronto    
+
+volumes:
+  postgres_data:

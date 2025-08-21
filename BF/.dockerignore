@@ -1,0 +1,15 @@
+# Cache di Python
+__pycache__/
+*.pyc
+
+# File di istanza e di log (non devono essere nell'immagine)
+instance/
+notifications.log
+
+# File di configurazione IDE
+.idea/
+.vscode/
+
+# Ambienti virtuali Python
+venv/
+env/
