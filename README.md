@@ -50,7 +50,7 @@ Before you begin, ensure you have the following installed on your system:
 Clone this repository to your local machine using the following command:
 
 ```bash
-git clone https://github.com/MouradMjd/FitBreakDocker.git
+git clone https://github.com/MouradMjd/FitBreak_Docker_for_production.git
 ```
 
 Once the download is complete, **navigate to the project's root directory**:
